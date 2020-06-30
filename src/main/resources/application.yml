@@ -7,10 +7,7 @@ spring:
     #url: jdbc:mysql://10.10.3.2:3306/db_uma_shop_manage?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
     url: jdbc:mysql://120.24.25.238/uma?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
     username: root
-  mail:
-    host: outlook.office365.com
-    username: clcfree@outlook.com
-    password: qaz_198773
+
 
 mybatis:
   mapper-locations: classpath:sqlmap/*.xml
