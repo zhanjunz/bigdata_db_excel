@@ -7,6 +7,10 @@ spring:
     url: jdbc:mysql://120.24.25.238/uma?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
     username: root
 
-
 mybatis:
-  mapper-locations: classpath:sqlmap/*.xml
+#  mapper-locations: classpath:sqlmap/*.xml
+  type-aliases-package: com.example.bigdata.dao
+
+logging:
+  level:
+    com.learnhow.springboot.mybatis.dao: debug #定义dao包下的日志记录级别为debug
