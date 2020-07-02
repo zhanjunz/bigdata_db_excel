@@ -10,6 +10,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,9 @@ public class ExcelUtil {
     // 定义压缩包名字
     private static final String ZIP_NAME = "导出.zip";
 
+    private ExcelUtil(){
+
+    }
     /**
      * 导出大数据量excel
      *
@@ -42,13 +46,20 @@ public class ExcelUtil {
      * @param excelSuffix    excel 后缀。区分excel版本03以及之前版本后缀为.xls 07版本以及之后为xlsx
      * @param filePath       导出路径
      */
-    public static void exportBigDataExcel(HttpServletResponse response,
+    public static void exportBigDataExcel(
                                           String[] tableHeadKey,
                                           String[] tableHeadValue,
                                           List<Map> mapList,
                                           String excelName,
                                           String excelSuffix,
                                           String filePath) throws Exception {
+
+
+        //压缩文件路径
+        File zip = new File(filePath + excelName + ".zip");
+
+        //存放生成的文件名称
+        List<String> fileNames = new ArrayList<>();
 
         // 获取到当前查询结果集数据大小
         int allRowNums = mapList.size();
@@ -60,21 +71,12 @@ public class ExcelUtil {
             //1.设置相应头
             String filename = ZIP_NAME;
             filename = new String(filename.getBytes("GBK"), "iso-8859-1");
-            response.reset();
-            response.setContentType("application/octet-stream;charset=UTF-8");
-            response.setHeader("Content-Disposition", "attachment;filename=" + filename);
-            response.addHeader("pargam", "no-cache");
-            response.addHeader("Cache-Control", "no-cache");
 
-            //存放生成的文件名称
-            List<String> fileNames = new ArrayList<String>();
+
             //上线后切换成linux服务器地址
             if (!new File(filePath).exists()) {
                 new File(filePath).mkdirs();
             }
-
-            //压缩文件路径
-            File zip = new File(filePath + excelName + ".zip");
 
             //3.分批次生成excel
             int tempSize = (allRowNums % ROW_MAX_COUNT) == 0 ? allRowNums / ROW_MAX_COUNT : allRowNums / ROW_MAX_COUNT + 1;
@@ -103,11 +105,7 @@ public class ExcelUtil {
                     fos.flush();
                     fos.close();
                 }
-
             }
-
-            // 导出压缩包
-//            exportZip(response, fileNames, zip);
 
         } else {
 
@@ -133,7 +131,8 @@ public class ExcelUtil {
             }
 
         }
-
+        // 导出压缩包
+        exportZip(fileNames, zip);
     }
 
 
@@ -197,7 +196,7 @@ public class ExcelUtil {
             cell = row.createCell(i);
             cell.setCellStyle(cellStyle);
             cell.setCellValue(tableHeadValue[i]);
-            sheet.setColumnWidth(i, (int) 7000);
+            sheet.setColumnWidth(i,  7000);
         }
 
         // 存入数据
@@ -223,19 +222,7 @@ public class ExcelUtil {
                 cell.setCellValue(map.get(tableHeadKey[i]) != null ? map.get(tableHeadKey[i]).toString() : "-");
             }
         }
-//        List<User> users = new ArrayList();
-//        for (User user : users) {
-//            row = sheet.createRow(rowIndex++);
-//            int index = 0;
-//            for (int i = 0; i < tableHeadKey.length; i++) {
-//                cell = row.createCell(index++);
-//                cell.setCellStyle(hssfCellStyle);
-//                cell.setCellValue(map.get(tableHeadKey[i]) != null ? map.get(tableHeadKey[i]).toString() : "-");
-//            }
-//        }
-
         return wb;
-
     }
 
     /**
@@ -259,7 +246,7 @@ public class ExcelUtil {
             //创建输出流
             OutputStream out = response.getOutputStream();
             //创建缓冲区
-            byte buffer[] = new byte[1024];
+            byte[] buffer = new byte[1024];
             int len = 0;
             //循环将输入流中的内容读取到缓冲区当中
             while ((len = in.read(buffer)) > 0) {
@@ -284,12 +271,11 @@ public class ExcelUtil {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    private static void exportZip(HttpServletResponse response, List<String> fileNames, File zip)
+    private static void exportZip(List<String> fileNames, File zip)
             throws IOException {
-        OutputStream outPut = response.getOutputStream();
 
         //1.压缩文件
-        File srcFile[] = new File[fileNames.size()];
+        File[] srcFile = new File[fileNames.size()];
         for (int i = 0; i < fileNames.size(); i++) {
             srcFile[i] = new File(fileNames.get(i));
         }
@@ -311,23 +297,9 @@ public class ExcelUtil {
         for (int i = 0; i < srcFile.length; i++) {
             File temFile = srcFile[i];
             if (temFile.exists() && temFile.isFile()) {
-                temFile.delete();
+//                temFile.delete();
+                Files.delete(temFile.toPath());
             }
-        }
-
-        //3.返回客户端压缩文件
-        FileInputStream inStream = new FileInputStream(zip);
-        byte[] buf = new byte[4096];
-        int readLenght;
-        while ((readLenght = inStream.read(buf)) != -1) {
-            outPut.write(buf, 0, readLenght);
-        }
-        inStream.close();
-        outPut.close();
-
-        //4.删除压缩文件
-        if (zip.exists() && zip.isFile()) {
-            zip.delete();
         }
     }
 }

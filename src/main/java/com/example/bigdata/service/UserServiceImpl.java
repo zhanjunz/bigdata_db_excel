@@ -1,5 +1,6 @@
 package com.example.bigdata.service;
 
+import com.example.bigdata.dao.MengNiuUser;
 import com.example.bigdata.dao.User;
 import com.example.bigdata.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import java.util.Map;
  * date 2020-07-01
  */
 @Service
-public class UserServiceImp implements UserService {
+public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
 
@@ -23,7 +24,14 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public Map<String,User> selectUserByName(String name) {
+    public Map<String, User> selectUserByName(String name) {
         return userMapper.selectUserByName(name);
     }
+
+    @Override
+    public void insertMengNiuUser(MengNiuUser user) {
+        userMapper.insertMengNiuUser(user);
+    }
+
+
 }

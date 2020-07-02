@@ -15,6 +15,9 @@ import java.io.InputStream;
 public class MybatisUtils {
 
     private static SqlSessionFactory sqlSessionFactory;
+    private MybatisUtils(){
+
+    }
 
     static {
         try {

@@ -11,5 +11,5 @@ import java.util.Map;
  */
 public interface ExportReportServcie {
 
-    public void exportReport(HttpServletResponse response, List<Map>  users);
+    public void exportReport(List<Map>  users);
 }
